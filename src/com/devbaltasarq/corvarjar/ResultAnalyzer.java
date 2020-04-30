@@ -35,6 +35,17 @@ public class ResultAnalyzer {
         this.valueRMSn = DEFAULT_RMSn;
         this.valueMeanBPMn = DEFAULT_BPMn;
         this.fileName = fileName;
+        this.log = null;
+    }
+
+    public boolean isVerbose()
+    {
+        return this.log != null;
+    }
+
+    public void setLog(StringBuilder log)
+    {
+        this.log = log;
     }
 
     public void analyze()
@@ -52,8 +63,13 @@ public class ResultAnalyzer {
             if ( this.dataRRnf.size() > 0 ) {
                 // Generates dataHRnf (unfiltered sequence of BPS values)
                 dataHRnf = new ArrayList<>();
+
                 for (int i = 0; i< dataRRnf.size(); i++) {
-                    dataHRnf.add(60.0f/(dataRRnf.get(i)/1000.0f));
+                    dataHRnf.add( 60.0f / ( dataRRnf.get(i) / 1000.0f ) );
+                }
+
+                if ( this.isVerbose() ) {
+                    this.dumpList( this.dataHRnf, log, "Unfiltered hr" );
                 }
 
                 // Calculates dataBeatTimesnf (unfiltered beat positions in seconds) from dataRRnf
@@ -83,10 +99,15 @@ public class ResultAnalyzer {
                 Log.i( LOG_TAG,"First value: "+ dataHRInterpX.get( 0 ) );
                 Log.i( LOG_TAG,"Last value: "+ dataHRInterpX.get( dataHRInterpX.size() - 1 ) );
 
+                if( this.isVerbose() ) {
+                    this.dumpList( this.dataRR, log, "Normalized rr" );
+                    this.dumpList( this.dataHR, log, "Normalized hr" );
+                }
+
                 // Calculate stress level
                 this.valueRMS = this.calculateRMSSD( this.dataRR );
                 this.valueSTD = this.calculateSTD( this.dataRR );
-                this.valueMeanFC = this.calculateMean( this.dataRR );
+                this.valueMeanBPM = this.calculateMean( this.dataHR );
                 this.calculateStress();
 
                 // Summarizes all the results
@@ -110,7 +131,12 @@ public class ResultAnalyzer {
             this.dataRRnf.add( (float) evt.getRR() );
         }
 
-        Log.i( LOG_TAG,"Size of vector: " + this.dataRRnf.size() );
+        if ( this.isVerbose() ) {
+            this.dumpList( this.dataRRnf, log, "Unfiltered rr" );
+            Log.i( LOG_TAG,"Size of vector: " + this.dataRRnf.size() );
+        }
+
+        return;
     }
 
     private void filterData()
@@ -246,7 +272,7 @@ public class ResultAnalyzer {
 
         TEXT.append( "<br/><h3>HRV time-domain results</h3>" );
         TEXT.append( "<p>&nbsp;&nbsp;<b>Mean RR (AVNN)</b>: " );
-        TEXT.append( String.format( Locale.getDefault(), "%.2f", this.valueMeanFC) );
+        TEXT.append( String.format( Locale.getDefault(), "%.2f", this.valueMeanBPM) );
         TEXT.append( " ms</p>" );
         TEXT.append( "<p>&nbsp;&nbsp;<b>STD RR (SDNN)</b>: " );
         TEXT.append( String.format( Locale.getDefault(), "%.2f", this.valueSTD) );
@@ -622,12 +648,42 @@ public class ResultAnalyzer {
     /** Calculates the stress level, resulting in a value between -1 and >1. */
     private void calculateStress()
     {
+        if ( this.isVerbose() ) {
+            log.append( "\nSTD: " );
+            log.append( Math.round( this.valueSTD ) );
+            log.append( " / STDn: " );
+            log.append( Math.round( this.valueSTDn ) );
+            log.append( "\nFactor 1 = " );
+            log.append( STRESS_LEVEL_A1 );
+            log.append( " * " );
+            log.append( ( this.valueSTDn - this.valueSTD ) / this.valueSTDn );
+
+
+            log.append( "\nRMS: " );
+            log.append( Math.round( this.valueRMS ) );
+            log.append( " / RMSn: " );
+            log.append( Math.round( this.valueRMSn ) );
+            log.append( "\nFactor 2 = " );
+            log.append( STRESS_LEVEL_A2 );
+            log.append( " * " );
+            log.append( ( this.valueRMSn - this.valueRMS ) / this.valueRMSn );
+
+            log.append( "\nAvgBPM: " );
+            log.append( Math.round( this.valueMeanBPM ) );
+            log.append( " / AvgBPMn: " );
+            log.append( Math.round( this.valueMeanBPMn ) );
+            log.append( "\nFactor 3 = " );
+            log.append( STRESS_LEVEL_A1 );
+            log.append( " * " );
+            log.append( ( this.valueMeanBPMn - this.valueMeanBPM ) / this.valueMeanBPMn );
+        }
+
         this.stress = 0.33f * (
                     STRESS_LEVEL_A1 * ( ( this.valueSTDn - this.valueSTD )
                                             / this.valueSTDn )
                     + STRESS_LEVEL_A2 * ( ( this.valueRMSn - this.valueRMS )
                                             / this.valueRMSn )
-                    + STRESS_LEVEL_A3 * ( ( this.valueMeanBPMn - this.valueMeanFC )
+                    + STRESS_LEVEL_A3 * ( ( this.valueMeanBPMn - this.valueMeanBPM)
                                             / this.valueMeanBPMn) );
     }
 
@@ -718,9 +774,33 @@ public class ResultAnalyzer {
                 + "\n\n";
     }
 
+    private void dumpList(final List<Float> DATA, StringBuilder log, String label)
+    {
+        float avg = 0;
+        String delim = "";
+
+        log.append( "\n\n" );
+        log.append( label );
+        log.append( ": [" );
+
+        for(float v: DATA) {
+            log.append( delim );
+            log.append( String.format( "%5.2f", v ) );
+
+            avg += v;
+            delim = ", ";
+        }
+
+        log.append( "]\n" );
+        log.append( "Avg: " );
+        log.append( String.format( "%5.2f", avg / DATA.size() ) );
+        log.append( '\n' );
+    }
+
     private String fileName;
     private Result result;
     private String report;
+    private StringBuilder log;
 
     private List<Float> dataRRnf;
     private List<Float> dataHRnf;
@@ -734,7 +814,7 @@ public class ResultAnalyzer {
     private float stress;
     private float valueSTD;
     private float valueRMS;
-    private float valueMeanFC;
+    private float valueMeanBPM;
     private float valueSTDn;
     private float valueRMSn;
     private float valueMeanBPMn;
