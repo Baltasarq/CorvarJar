@@ -668,14 +668,14 @@ public class ResultAnalyzer {
             log.append( " * " );
             log.append( ( this.valueRMSn - this.valueRMS ) / this.valueRMSn );
 
-            log.append( "\nAvgBPM: " );
-            log.append( Math.round( this.valueMeanBPM ) );
-            log.append( " / AvgBPMn: " );
+            log.append( "\nAvgBPMn: " );
             log.append( Math.round( this.valueMeanBPMn ) );
+            log.append( " / AvgBPM: " );
+            log.append( Math.round( this.valueMeanBPM ) );
             log.append( "\nFactor 3 = " );
-            log.append( STRESS_LEVEL_A1 );
+            log.append( STRESS_LEVEL_A3 );
             log.append( " * " );
-            log.append( ( this.valueMeanBPMn - this.valueMeanBPM ) / this.valueMeanBPMn );
+            log.append( ( this.valueMeanBPM - this.valueMeanBPMn ) / this.valueMeanBPMn );
         }
 
         this.stress = 0.33f * (
@@ -683,7 +683,7 @@ public class ResultAnalyzer {
                                             / this.valueSTDn )
                     + STRESS_LEVEL_A2 * ( ( this.valueRMSn - this.valueRMS )
                                             / this.valueRMSn )
-                    + STRESS_LEVEL_A3 * ( ( this.valueMeanBPMn - this.valueMeanBPM)
+                    + STRESS_LEVEL_A3 * ( ( this.valueMeanBPM - this.valueMeanBPMn )
                                             / this.valueMeanBPMn) );
     }
 
