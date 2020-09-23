@@ -26,6 +26,7 @@ public class CorvarJarTest {
             resultAnalyzer.analyze();
 
             System.out.println( "Stress level: " + resultAnalyzer.getStressLevel() );
+            System.out.println( "MADRR       : " + resultAnalyzer.getMadRR() );
 
             if ( verbose ) {
                 System.out.println( "\nReport:" );

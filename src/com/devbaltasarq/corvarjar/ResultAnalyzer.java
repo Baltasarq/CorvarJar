@@ -11,10 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 
 public class ResultAnalyzer {
@@ -109,6 +106,9 @@ public class ResultAnalyzer {
                 this.valueSTD = this.calculateSTD( this.dataRR );
                 this.valueMeanBPM = this.calculateMean( this.dataHR );
                 this.calculateStress();
+
+                // Calculate the median
+                this.calculateMADRR( this.dataRR );
 
                 // Summarizes all the results
                 this.report += this.createReport();
@@ -323,6 +323,11 @@ public class ResultAnalyzer {
         TEXT.append( "<p>&nbsp;&nbsp;Stress (0 - 1): " );
         TEXT.append( this.stress );
         TEXT.append( "</p>" );
+
+        TEXT.append( "<br/><h3>MadRR</h3>" );
+        TEXT.append( "<p>&nbsp;&nbsp;MadRR: " );
+        TEXT.append( this.stress );
+        TEXT.append( "ms.</p>" );
 
         return TEXT.toString();
     }
@@ -645,6 +650,23 @@ public class ResultAnalyzer {
         return segmentPadded;
     }
 
+    /** Calculates de MADDRR (median) value. */
+    private void calculateMADRR(List<Float> signal)
+    {
+        List<Float> difsRR = new ArrayList<>();
+
+        for (int i=1 ; i < signal.size() ; i++) {
+            difsRR.add(Math.abs(signal.get(i) - signal.get(i-1)));
+        }
+        Collections.sort(difsRR);
+        int n = difsRR.size() / 2;
+
+        if (difsRR.size() % 2 == 0)
+            this.madrr = ( difsRR.get(n) + difsRR.get(n-1) )/2;
+        else
+            this.madrr = difsRR.get(n);
+    }
+
     /** Calculates the stress level, resulting in a value between -1 and >1. */
     private void calculateStress()
     {
@@ -700,7 +722,16 @@ public class ResultAnalyzer {
      * @return a value between 0 (or less) (no stress at all)
      *         to 1 or more (very stressed).
      */
-    public float getStressLevel() { return this.stress; }
+    public float getStressLevel()
+    {
+        return this.stress;
+    }
+
+    /** @return the median of RR (MADRR value), in ms. */
+    public float getMadRR()
+    {
+        return this.madrr;
+    }
 
     /** @return the normal standard deviation. */
     public float getSTDn()
@@ -812,6 +843,7 @@ public class ResultAnalyzer {
     private List<Float> dataHRInterp;
     private int filteredData;
     private float stress;
+    private float madrr;
     private float valueSTD;
     private float valueRMS;
     private float valueMeanBPM;
