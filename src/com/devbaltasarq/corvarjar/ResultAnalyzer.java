@@ -111,7 +111,7 @@ public class ResultAnalyzer {
                 this.madrr = this.calculateMADRR( this.dataRR );
 
                 // Calculare the entropy
-                this.apen = this.calculateApEn( this.dataRR, 2, 3.0f );
+                this.apen = this.calculateApEn( this.dataRR, 2, 0.2f );
 
                 // Summarizes all the results
                 this.report += this.createReport();
