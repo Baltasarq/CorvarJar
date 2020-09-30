@@ -5,7 +5,7 @@ import com.devbaltasarq.corvarjar.ResultAnalyzer;
 public class CorvarJarTest {
     public static void main(String[] args)
     {
-        System.out.println( "CorvarJarTest (c) 2020 Baltasar Mile Group MIT License <jbgarcia@uvigo.es>" );
+        System.out.println( "CorvarJarTest (c) 2020 Baltasar Mile Group MIT License <jbgarcia@uvigo.es>\n" );
 
         if ( args.length > 0 ) {
             final StringBuilder log = new StringBuilder();
@@ -27,6 +27,7 @@ public class CorvarJarTest {
 
             System.out.println( "Stress level: " + resultAnalyzer.getStressLevel() );
             System.out.println( "MADRR       : " + resultAnalyzer.getMadRR() );
+            System.out.println( "ApEn        : " + resultAnalyzer.getApEn() );
 
             if ( verbose ) {
                 System.out.println( "\nReport:" );

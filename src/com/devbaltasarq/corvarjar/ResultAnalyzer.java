@@ -108,7 +108,10 @@ public class ResultAnalyzer {
                 this.calculateStress();
 
                 // Calculate the median
-                this.calculateMADRR( this.dataRR );
+                this.madrr = this.calculateMADRR( this.dataRR );
+
+                // Calculare the entropy
+                this.apen = this.calculateApEn( this.dataRR, 2, 3.0f );
 
                 // Summarizes all the results
                 this.report += this.createReport();
@@ -326,7 +329,12 @@ public class ResultAnalyzer {
 
         TEXT.append( "<br/><h3>MadRR</h3>" );
         TEXT.append( "<p>&nbsp;&nbsp;MadRR: " );
-        TEXT.append( this.stress );
+        TEXT.append( this.madrr );
+        TEXT.append( "ms.</p>" );
+
+        TEXT.append( "<br/><h3>ApEn</h3>" );
+        TEXT.append( "<p>&nbsp;&nbsp;ApEn: " );
+        TEXT.append( this.apen );
         TEXT.append( "ms.</p>" );
 
         return TEXT.toString();
@@ -650,10 +658,11 @@ public class ResultAnalyzer {
         return segmentPadded;
     }
 
-    /** Calculates de MADDRR (median) value. */
-    private void calculateMADRR(List<Float> signal)
+    /** @return the MADDRR (median) value. */
+    private float calculateMADRR(List<Float> signal)
     {
         List<Float> difsRR = new ArrayList<>();
+        float result;
 
         for (int i=1 ; i < signal.size() ; i++) {
             difsRR.add(Math.abs(signal.get(i) - signal.get(i-1)));
@@ -662,9 +671,79 @@ public class ResultAnalyzer {
         int n = difsRR.size() / 2;
 
         if (difsRR.size() % 2 == 0)
-            this.madrr = ( difsRR.get(n) + difsRR.get(n-1) )/2;
+            result = ( difsRR.get(n) + difsRR.get(n-1) )/2;
         else
-            this.madrr = difsRR.get(n);
+            result = difsRR.get(n);
+
+        return result;
+    }
+
+    /** @return the entropy. */
+    private float calculateApEn(final List<Float> signal, int m, float r)
+    {
+        r *= _calculateSD(signal);
+        return Math.abs( _phi(signal, m + 1, r)  - _phi( signal, m, r ) );
+    }
+
+    private float _calculateSD(final List<Float> signal)
+    {
+        float sum = 0.0f, standardDeviation = 0.0f;
+        int length = signal.size();
+
+        for(int index=0 ; index < length ; index++) {
+            sum += signal.get(index);
+        }
+
+        float mean = sum/length;
+
+        for(int index=0 ; index < length ; index++) {
+            standardDeviation += Math.pow(signal.get(index) - mean, 2);
+        }
+
+        return (float) Math.sqrt(standardDeviation/length);
+    }
+
+    private float _phi(final List<Float> U, int m, float r)
+    {
+        int N = U.size();
+        ArrayList<ArrayList<Float>> x = new ArrayList<>();
+        for (int i=0; i < N-m+1 ; i++) {
+            ArrayList<Float> x_row = new ArrayList<>();
+            for (int j=i; j<i+m ; j++) {
+                x_row.add(U.get(j));
+            }
+            x.add(x_row);
+        }
+
+        ArrayList<Float> C = new ArrayList<>();
+        for (int i=0 ; i<x.size() ; i++)
+        {
+            float C_tmp = .0f;
+            for (int j=0 ; j<x.size() ; j++)
+            {
+                if (_maxdist(x.get(i),x.get(j)) <= r)
+                {
+                    C_tmp += 1.0f;
+                }
+            }
+            C.add(C_tmp / (N-m+1.0f));
+        }
+
+        float result = .0f;
+        for (int index=0 ; index<C.size() ; index++) {
+            result += Math.log(C.get(index));
+        }
+        result /= (N - m + 1.0f);
+        return result;
+    }
+
+    private float _maxdist(final List<Float> x_i , final List<Float> x_j)
+    {
+        ArrayList<Float> diffs = new ArrayList<>();
+        for (int index = 0; index < x_i.size(); index++) {
+            diffs.add(Math.abs(x_i.get(index)-x_j.get(index)));
+        }
+        return Collections.max(diffs);
     }
 
     /** Calculates the stress level, resulting in a value between -1 and >1. */
@@ -731,6 +810,12 @@ public class ResultAnalyzer {
     public float getMadRR()
     {
         return this.madrr;
+    }
+
+    /** @return the entropy. */
+    public float getApEn()
+    {
+        return this.apen;
     }
 
     /** @return the normal standard deviation. */
@@ -843,6 +928,7 @@ public class ResultAnalyzer {
     private List<Float> dataHRInterp;
     private int filteredData;
     private float stress;
+    private float apen;
     private float madrr;
     private float valueSTD;
     private float valueRMS;
