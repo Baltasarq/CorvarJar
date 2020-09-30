@@ -19,6 +19,8 @@ ResultAnalyzer resultAnalyzer = new ResultAnalyzer( args[ 0 ] );
 resultAnalyzer.analyze();
 
 System.out.println( "Stress level: " + resultAnalyzer.getStressLevel() );
+System.out.println( "MadRR: " + resultAnalyzer.getMadRR() + "ms." );
+System.out.println( "Entropy (ApEn): " + resultAnalyzer.getApEn() );
 ```
 
 
