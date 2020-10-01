@@ -1,11 +1,13 @@
 package com.devbaltasarq.corvarjartest;
 
+import com.devbaltasarq.corvarjar.LibInfo;
 import com.devbaltasarq.corvarjar.ResultAnalyzer;
 
 public class CorvarJarTest {
     public static void main(String[] args)
     {
-        System.out.println( "CorvarJarTest (c) 2020 Baltasar Mile Group MIT License <jbgarcia@uvigo.es>\n" );
+        System.out.println( "CorvarJarTest (c) 2020 Baltasar Mile Group MIT License <jbgarcia@uvigo.es>" );
+        System.out.println( LibInfo.asString() + "\n" );
 
         if ( args.length > 0 ) {
             final StringBuilder log = new StringBuilder();
