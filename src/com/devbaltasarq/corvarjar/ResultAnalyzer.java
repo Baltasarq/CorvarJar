@@ -791,7 +791,7 @@ public class ResultAnalyzer {
         return;
     }
 
-    public float getProbStress()
+    public float getProbeStress()
     {
         final float ODDS_RATIO = (float) Math.exp( this.valueStress );
 

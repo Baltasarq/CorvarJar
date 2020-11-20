@@ -21,7 +21,7 @@ resultAnalyzer.analyze();
 System.out.println( "Stress level: " + resultAnalyzer.getStressLevel() );
 System.out.println( "MadRR: " + resultAnalyzer.getMadRR() + "ms." );
 System.out.println( "Entropy (ApEn): " + resultAnalyzer.getApEn() );
-System.out.print( "Probstress  : " + resultAnalyzer.getProbStress() );
+System.out.print( "ProbeStress  : " + resultAnalyzer.getProbeStress() );
 System.out.println( "\n\t(values > 0.5 indicate stress.)" );
 ```
 
