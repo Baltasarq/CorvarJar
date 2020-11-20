@@ -764,7 +764,7 @@ public class ResultAnalyzer {
         return Collections.max(diffs);
     }
 
-    /** Calculates the stress level, resulting in a value between -1 and >1. */
+    /** Calculates the stress level. */
     private void calculateStress()
     {
         final float TERM1 = STRESS_LEVEL_A1 * this.valueApEn;
@@ -791,6 +791,7 @@ public class ResultAnalyzer {
         return;
     }
 
+    /** @return a value between 0 and 1. Values > .5 indicate stress. */
     public float getProbeStress()
     {
         final float ODDS_RATIO = (float) Math.exp( this.valueStress );
