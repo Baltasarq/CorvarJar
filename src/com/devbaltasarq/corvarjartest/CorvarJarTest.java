@@ -30,7 +30,7 @@ public class CorvarJarTest {
             System.out.println( "Stress level: " + resultAnalyzer.getStressLevel() );
             System.out.println( "MADRR       : " + resultAnalyzer.getMadRR() );
             System.out.println( "ApEn        : " + resultAnalyzer.getApEn()  + "\n" );
-            System.out.print( "ProbeStress  : " + resultAnalyzer.getProbeStress() );
+            System.out.print( "ProbeStress : " + resultAnalyzer.getProbeStress() );
             System.out.println( "\n\t(values > 0.5 indicate stress.)" );
 
             if ( verbose ) {
