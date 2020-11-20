@@ -6,9 +6,9 @@ package com.devbaltasarq.corvarjar;
 
 public class LibInfo {
     public static final String NAME = "CorvarJar";
-    public static final String VERSION = "v0.3 20201001";
+    public static final String VERSION = "v0.4 20201120";
     public static final String AUTHOR = "MILE Group";
-    public static final String EDITION = "Prophetess";
+    public static final String EDITION = "NextGen";
 
     public static String asShortString()
     {
