@@ -784,7 +784,7 @@ public class ResultAnalyzer {
                              + "\n\t+ term2: " + TERM2
                              + "\n\t+ term3: " + TERM3
                              + "\n\t+ term4: " + TERM4
-                             + "\n\t+ indep:" + STRESS_LEVEL_INDEPENDENT_TERM
+                             + "\n\t+ indep: " + STRESS_LEVEL_INDEPENDENT_TERM
                              + "\n\t= " + this.valueStress );
         }
 
