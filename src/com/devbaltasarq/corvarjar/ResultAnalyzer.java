@@ -791,6 +791,13 @@ public class ResultAnalyzer {
         return;
     }
 
+    public float getProbStress()
+    {
+        final float ODDS_RATIO = (float) Math.exp( this.valueStress );
+
+        return ( ODDS_RATIO / ( ODDS_RATIO + 1 ) );
+    }
+
     public String getReport()
     {
         return this.report;
