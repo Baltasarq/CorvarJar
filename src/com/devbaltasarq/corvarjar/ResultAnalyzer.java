@@ -132,8 +132,8 @@ public class ResultAnalyzer {
         try (FileInputStream fileInputStream = new FileInputStream(fileName);
              InputStreamReader inputStreamReader = new InputStreamReader(
                      fileInputStream,
-                     StandardCharsets.UTF_8.newDecoder());
-             BufferedReader bufferedReader = new BufferedReader(inputStreamReader))
+                     StandardCharsets.UTF_8.newDecoder() );
+             BufferedReader bufferedReader = new BufferedReader( inputStreamReader ))
         {
             this.result = Result.fromJSON( bufferedReader );
         } catch (IOException | JsonParseException exc) {
@@ -309,32 +309,32 @@ public class ResultAnalyzer {
         TEXT.append( "</p>" );
 
         // ------------------------
-        final List<Float> powerbands = calculateSpectrum(dataHRInterpX.get(0), dataHRInterpX.get(dataHRInterpX.size()-1));
+        final List<Float> POWER_BANDS = calculateSpectrum(dataHRInterpX.get(0), dataHRInterpX.get(dataHRInterpX.size()-1));
 
         TEXT.append( "<br/><h3>HRV frequency-domain results</h3>" );
         TEXT.append( "<p>&nbsp;&nbsp;<b>Total power</b>: " );
-        TEXT.append( String.format( Locale.getDefault(), "%.2f", powerbands.get(0)) );
+        TEXT.append( String.format( Locale.getDefault(), "%.2f", POWER_BANDS.get(0)) );
         TEXT.append( " ms&sup2;</p>" );
 
-        if (powerbands.get(1)>0.0) {
+        if ( POWER_BANDS.get( 1 ) > 0.0 ) {
             TEXT.append( "<p>&nbsp;&nbsp;<b>LF power</b>: " );
-            TEXT.append( String.format( Locale.getDefault(), "%.2f", powerbands.get(1)) );
+            TEXT.append( String.format( Locale.getDefault(), "%.2f", POWER_BANDS.get(1)) );
             TEXT.append( " ms&sup2;</p>" );
         } else {
             TEXT.append( "<p>&nbsp;&nbsp;<b>LF power</b>: --</p>" );
         }
 
-        if (powerbands.get(2)>0.0) {
+        if ( POWER_BANDS.get( 2 ) > 0.0 ) {
             TEXT.append( "<p>&nbsp;&nbsp;<b>HF power</b>: " );
-            TEXT.append( String.format( Locale.getDefault(), "%.2f", powerbands.get(2)) );
+            TEXT.append( String.format( Locale.getDefault(), "%.2f", POWER_BANDS.get(2)) );
             TEXT.append( " ms&sup2;</p>" );
         } else {
             TEXT.append( "<p>&nbsp;&nbsp;<b>HF power</b>: --</p>" );
         }
 
-        if (powerbands.get(1)>0.0) {
+        if ( POWER_BANDS.get( 1 ) > 0.0 ) {
             TEXT.append( "<p>&nbsp;&nbsp;<b>LF/HF ratio</b>: " );
-            TEXT.append( String.format( Locale.getDefault(), "%.2f", powerbands.get(3)) );
+            TEXT.append( String.format( Locale.getDefault(), "%.2f", POWER_BANDS.get(3)) );
             TEXT.append( "</p>" );
         } else {
             TEXT.append( "<p>&nbsp;&nbsp;<b>LF/HF ratio</b>: --</p>" );
@@ -697,25 +697,25 @@ public class ResultAnalyzer {
     }
 
     /** @return the entropy. */
-    private float calculateApEn(final List<Float> signal, int m, float r)
+    private float calculateApEn(final List<Float> SIGNAL, int m, float r)
     {
-        r *= _calculateSD(signal);
-        return Math.abs( _phi(signal, m + 1, r)  - _phi( signal, m, r ) );
+        r *= _calculateSD( SIGNAL );
+        return Math.abs( _phi( SIGNAL, m + 1, r )  - _phi( SIGNAL, m, r ) );
     }
 
-    private float _calculateSD(final List<Float> signal)
+    private float _calculateSD(final List<Float> SIGNAL)
     {
         float sum = 0.0f, standardDeviation = 0.0f;
-        int length = signal.size();
+        int length = SIGNAL.size();
 
         for(int index=0 ; index < length ; index++) {
-            sum += signal.get(index);
+            sum += SIGNAL.get(index);
         }
 
         float mean = sum/length;
 
         for(int index=0 ; index < length ; index++) {
-            standardDeviation += Math.pow(signal.get(index) - mean, 2);
+            standardDeviation += Math.pow(SIGNAL.get(index) - mean, 2);
         }
 
         return (float) Math.sqrt(standardDeviation/length);
@@ -755,11 +755,11 @@ public class ResultAnalyzer {
         return result;
     }
 
-    private float _maxdist(final List<Float> x_i , final List<Float> x_j)
+    private float _maxdist(final List<Float> X_I , final List<Float> X_J)
     {
         ArrayList<Float> diffs = new ArrayList<>();
-        for (int index = 0; index < x_i.size(); index++) {
-            diffs.add(Math.abs(x_i.get(index)-x_j.get(index)));
+        for (int index = 0; index < X_I.size(); index++) {
+            diffs.add(Math.abs(X_I.get(index)-X_J.get(index)));
         }
         return Collections.max(diffs);
     }

@@ -17,15 +17,19 @@ import java.util.ArrayList;
 
 /** Represents the results of a given experiment. */
 public class Result extends Persistent {
-    private static String FIELD_TAG = "tag";
-    private static String FIELD_TIME = "time";
-    private static String FIELD_DATE = "date";
-    private static String FIELD_RR = "rr";
-    private static String FIELD_RRS = "rrs";
-    private static String FIELD_TYPE_ID = "type_id";
+    private static final String FIELD_TAG = "tag";
+    private static final String FIELD_TIME = "time";
+    private static final String FIELD_DATE = "date";
+    private static final String FIELD_RR = "rr";
+    private static final String FIELD_RRS = "rrs";
+    private static final String FIELD_EVENTS = "events";
+    private static final String FIELD_TYPE_ID = "type_id";
+    private static final String FIELD_EVENT_TYPE = "event_type";
+    private static final String FIELD_HEART_BEAT_AT = "heart_beat_at";
+    private static final String FIELD_ELAPSED_TIME = "elapsed_time";
 
 
-    private static final String LogTag = Result.class.getSimpleName();
+    private static final String LOG_TAG = Result.class.getSimpleName();
 
     public static class BeatEvent {
         public BeatEvent(long time, long rr)
@@ -240,8 +244,8 @@ public class Result extends Persistent {
 
     public static Result fromJSON(Reader reader) throws JsonParseException
     {
-        final JsonReader jsonReader = new JsonReader( reader );
-        final ArrayList<BeatEvent> rrs = new ArrayList<>();
+        final JsonReader JSON_READER = new JsonReader( reader );
+        final ArrayList<BeatEvent> RRS = new ArrayList<>();
         Result toret;
         long durationInMillis = -1L;
         TypeId typeId = null;
@@ -251,72 +255,88 @@ public class Result extends Persistent {
 
         // Load data
         try {
-            jsonReader.beginObject();
-            while ( jsonReader.hasNext() ) {
-                final String nextName = jsonReader.nextName();
+            JSON_READER.beginObject();
+            while ( JSON_READER.hasNext() ) {
+                final String NEXT_NAME = JSON_READER.nextName();
 
-                if ( nextName.equals( FIELD_TAG ) ) {
-                    tag = new Tag( jsonReader.nextString() );
+                if ( NEXT_NAME.equals( FIELD_TAG ) ) {
+                    tag = new Tag( JSON_READER.nextString() );
                 }
                 else
-                if ( nextName.equals( FIELD_DATE ) ) {
-                    dateTime = jsonReader.nextLong();
+                if ( NEXT_NAME.equals( FIELD_DATE ) ) {
+                    dateTime = JSON_READER.nextLong();
                 }
                 else
-                if ( nextName.equals( FIELD_TIME ) ) {
-                    durationInMillis = jsonReader.nextLong();
+                if ( NEXT_NAME.equals( FIELD_TIME ) ) {
+                    durationInMillis = JSON_READER.nextLong();
                 }
                 else
-                if ( nextName.equals( FIELD_TYPE_ID ) ) {
-                    typeId = readTypeIdFromJson( jsonReader );
+                if ( NEXT_NAME.equals( FIELD_TYPE_ID ) ) {
+                    typeId = readTypeIdFromJson( JSON_READER );
                 }
                 else
-                if ( nextName.equals( Id.FIELD ) ) {
-                    id = readIdFromJSON( jsonReader );
+                if ( NEXT_NAME.equals( Id.FIELD ) ) {
+                    id = readIdFromJSON( JSON_READER );
                 }
                 else
-                if ( nextName.equals( FIELD_RRS ) ) {
-                    long time = -1;
-                    long rr = -1;
-
-                    jsonReader.beginArray();
+                if ( NEXT_NAME.equals( FIELD_RRS )
+                  || NEXT_NAME.equals( FIELD_EVENTS ) )
+                {
+                    JSON_READER.beginArray();
 
                     // Read each time, rr pair
-                    while( jsonReader.hasNext() ) {
-                        jsonReader.beginObject();
+                    while( JSON_READER.hasNext() ) {
+                        long time = -1;
+                        long rr = -1;
+                        String eventType = "N/A";
+
+                        JSON_READER.beginObject();
 
                         // Read the individual time, rr object.
-                        while( jsonReader.hasNext() ) {
-                            final String pairNextName = jsonReader.nextName();
+                        while( JSON_READER.hasNext() ) {
+                            final String PAIR_NEXT_NAME = JSON_READER.nextName();
 
-                            if ( pairNextName.equals( FIELD_TIME ) ) {
-                                time = jsonReader.nextLong();
+                            if ( PAIR_NEXT_NAME.equals( FIELD_EVENT_TYPE ) ) {
+                                eventType = JSON_READER.nextString();
                             }
                             else
-                            if ( pairNextName.equals( FIELD_RR ) ) {
-                                rr = jsonReader.nextLong();
+                            if ( PAIR_NEXT_NAME.equals( FIELD_TIME )
+                              || PAIR_NEXT_NAME.equals( FIELD_ELAPSED_TIME ) )
+                            {
+                                time = JSON_READER.nextLong();
+                            }
+                            else
+                            if ( PAIR_NEXT_NAME.equals( FIELD_RR )
+                              || PAIR_NEXT_NAME.equals( FIELD_HEART_BEAT_AT ) )
+                            {
+                                rr = JSON_READER.nextLong();
+                            } else {
+                                JSON_READER.skipValue();
                             }
                         }
 
-                        jsonReader.endObject();
+                        JSON_READER.endObject();
 
                         if ( time >= 0
                           && rr >= 0 )
                         {
-                            rrs.add( new BeatEvent( time, rr ) );
+                            RRS.add( new BeatEvent( time, rr ) );
                         } else {
-                            throw new JsonParseException( "incomplete <time, rr> pair" );
+                            Log.i( LOG_TAG,"ignored entry with no rr, even_type: "
+                                    + eventType );
                         }
                     }
 
-                    jsonReader.endArray();
+                    JSON_READER.endArray();
+                } else {
+                    JSON_READER.skipValue();
                 }
             }
         } catch(IOException exc)
         {
             final String ERROR_MSG = "Creating result from JSON: " + exc.getMessage();
 
-            Log.e( LogTag, ERROR_MSG );
+            Log.e(LOG_TAG, ERROR_MSG );
             throw new JsonParseException( ERROR_MSG );
         }
 
@@ -326,16 +346,16 @@ public class Result extends Persistent {
           || durationInMillis < 0
           || typeId != TypeId.Result )
         {
-            final String msg = "Creating result from JSON: invalid or missing data.";
+            final String MSG = "Creating result from JSON: invalid or missing data.";
 
-            Log.e( LogTag, msg );
-            throw new JsonParseException( msg );
+            Log.e(LOG_TAG, MSG );
+            throw new JsonParseException( MSG );
         } else {
             toret = new Result( tag,
                                 id,
                                 dateTime,
                                 durationInMillis,
-                                rrs.toArray( new BeatEvent[ 0 ] ) );
+                                RRS.toArray( new BeatEvent[ 0 ] ) );
         }
 
         return toret;
@@ -358,15 +378,15 @@ public class Result extends Persistent {
      */
     public static long parseTimeFromName(String resName)
     {
-        final String strTime = parseName( resName )[ 3 ];
+        final String STR_TIME = parseName( resName )[ 3 ];
 
-        if ( strTime.charAt( 0 ) != 't' ) {
+        if ( STR_TIME.charAt( 0 ) != 't' ) {
             throw new Error( "malformed result name looking for time: "
-                    + strTime
+                    + STR_TIME
                     + "/" + resName );
         }
 
-        return Long.parseLong( strTime.substring( 1 ) );
+        return Long.parseLong( STR_TIME.substring( 1 ) );
     }
 
     /** @return the result's tag, reading it from its name.
@@ -374,15 +394,15 @@ public class Result extends Persistent {
      */
     public static String parseTagFromName(String resName)
     {
-        final String strTag = parseName( resName )[ 2 ];
+        final String STR_TAG = parseName( resName )[ 2 ];
 
-        if ( strTag.charAt( 0 ) != 'g' ) {
+        if ( STR_TAG.charAt( 0 ) != 'g' ) {
             throw new Error( "malformed result name looking for time: "
-                    + strTag
+                    + STR_TAG
                     + "/" + resName );
         }
 
-        return strTag.substring( 1 );
+        return STR_TAG.substring( 1 );
     }
 
     private static String[] parseName(String resName)
@@ -399,13 +419,13 @@ public class Result extends Persistent {
         resName = resName.substring( 0, resName.lastIndexOf( '.' ) );
 
         // Divide in parts
-        final String[] toret = resName.split( "-" );
+        final String[] TORET = resName.split( "-" );
 
-        if ( toret.length != 4 ) {
+        if ( TORET.length != 4 ) {
             throw new Error( "dividing result name in parts" );
         }
 
-        return toret;
+        return TORET;
     }
 
     private Tag tag;

@@ -55,9 +55,9 @@ public class Duration {
         boolean toret = false;
 
         if ( o instanceof Duration ) {
-            final Duration dot = (Duration) o;
+            final Duration DOT = (Duration) o;
 
-            toret = ( this.getTimeInSeconds() == dot.getTimeInSeconds() );
+            toret = ( this.getTimeInSeconds() == DOT.getTimeInSeconds() );
         }
 
         return toret;

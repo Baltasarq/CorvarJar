@@ -10,7 +10,7 @@ public class CorvarJarTest {
         System.out.println( LibInfo.asString() + "\n" );
 
         if ( args.length > 0 ) {
-            final StringBuilder log = new StringBuilder();
+            final StringBuilder LOG = new StringBuilder();
             boolean verbose = false;
             int fileArgNumber = 0;
 
@@ -22,7 +22,7 @@ public class CorvarJarTest {
             ResultAnalyzer resultAnalyzer = new ResultAnalyzer( args[ fileArgNumber ] );
 
             if ( verbose ) {
-                resultAnalyzer.setLog( log );
+                resultAnalyzer.setLog( LOG );
             }
 
             resultAnalyzer.analyze();
@@ -35,7 +35,7 @@ public class CorvarJarTest {
 
             if ( verbose ) {
                 System.out.println( "\nReport:" );
-                System.out.println( log.toString() );
+                System.out.println( LOG.toString() );
             }
         } else {
             System.out.println( "Usage: corvarjartest <filename.res>" );
