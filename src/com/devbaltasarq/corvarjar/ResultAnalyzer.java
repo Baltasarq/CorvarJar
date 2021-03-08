@@ -829,6 +829,18 @@ public class ResultAnalyzer {
         return this.valueApEn;
     }
 
+    /** @return the HR sequence, interpolated. */
+    public Float[] getDataHRInterpolated()
+    {
+        return this.dataHRInterp.toArray( new Float[ 0 ] );
+    }
+
+    /** @return the HR sequence, interpolated for time. */
+    public Float[] getDataHRInterpolatedForX()
+    {
+        return this.dataHRInterpX.toArray( new Float[ 0 ] );
+    }
+
     private String createHeader()
     {
         final SimpleDateFormat FORMATTER = new SimpleDateFormat( "dd/MM/yyyy HH:mm:ss",
